@@ -1,0 +1,52 @@
+services:
+  # Webサーバー（リクエストを受け取り、.phpファイルはphpコンテナに渡す）
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - .:/var/www/html
+    depends_on:
+      - php
+
+  # Laravel本体を実行するPHP-FPMコンテナ
+  php:
+    build:
+      context: ./docker/php
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - mysql
+
+  # データベース（既存の名前付きボリューム db_data をそのまま使い、
+  # 今までシードしたデータを引き継ぐ）
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: salon_db
+      MYSQL_USER: salon_user
+      MYSQL_PASSWORD: password
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+
+  # ブラウザからDBの中身を確認できる管理ツール（http://localhost:8080）
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOST: mysql
+      PMA_USER: salon_user
+      PMA_PASSWORD: password
+    depends_on:
+      - mysql
+    ports:
+      - "8080:80"
+
+volumes:
+  db_data:
