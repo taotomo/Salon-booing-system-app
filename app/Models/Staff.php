@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Staff extends Model
 {
+    use HasFactory;
+
     // Laravelは英語の複数形ルールに基づいてテーブル名を自動推測するが、
     // "Staff" は複数形にしても "staff" のまま変化しないため、
     // マイグレーションで作った実際のテーブル名 "staffs" を明示しておく

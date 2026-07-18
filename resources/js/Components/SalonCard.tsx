@@ -6,8 +6,8 @@ import { Link } from '@inertiajs/react';
 
 /**
  * サロン一覧に並べるカード1枚分
- * ホットペッパービューティーの一覧カードを意識し、
- * 「画像 → 店名 → 評価 → 住所 → 最安メニュー」の順で情報を見せる
+ * 楽天ビューティー・ホットペッパービューティーの一覧カードを意識し、
+ * 「画像 → 店名 → 評価 → 住所 → アピール文 → 代表メニュー → 最安メニュー」の順で情報を見せる
  */
 export default function SalonCard({ salon }: { salon: Salon }) {
     const { average, count } = summarizeReviews(salon.reviews);
@@ -16,6 +16,9 @@ export default function SalonCard({ salon }: { salon: Salon }) {
     const minPrice = salon.services?.length
         ? Math.min(...salon.services.map((service) => service.price))
         : null;
+
+    // カードに並べる代表メニュー（先頭2〜3件をそのままタグとして見せるだけ。クリックはできない）
+    const featuredServices = salon.services?.slice(0, 3) ?? [];
 
     return (
         <Link
@@ -53,6 +56,25 @@ export default function SalonCard({ salon }: { salon: Salon }) {
                 <p className="truncate text-sm text-gray-500">
                     📍 {salon.address}
                 </p>
+
+                {salon.description && (
+                    <p className="line-clamp-2 text-xs leading-relaxed text-gray-500">
+                        {salon.description}
+                    </p>
+                )}
+
+                {featuredServices.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                        {featuredServices.map((service) => (
+                            <span
+                                key={service.id}
+                                className="rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-600"
+                            >
+                                {service.name} {formatPrice(service.price)}
+                            </span>
+                        ))}
+                    </div>
+                )}
 
                 {minPrice !== null && (
                     <p className="pt-1 text-sm font-semibold text-orange-500">

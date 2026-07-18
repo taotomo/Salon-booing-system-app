@@ -24,8 +24,9 @@ class SalonController extends Controller
     {
         // 全サロンを取得する
         // with() = 関連データも一緒に取得（N+1問題対策）
-        // 'reviews' = レビューも取得して平均評価などに使えるようにする
-        $salons = Salon::with('reviews')->get();
+        // 'reviews'  = レビューも取得して平均評価などに使えるようにする
+        // 'services' = 一覧カードに「最安値」「代表メニュー」を表示するために必要
+        $salons = Salon::with(['reviews', 'services'])->get();
 
         return Inertia::render('Salons/Index', [
             'salons' => $salons,

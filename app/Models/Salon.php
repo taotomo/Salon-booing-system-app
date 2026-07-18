@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Salon extends Model
 {
+    use HasFactory;
+
     /**
      * fillable = 「まとめて保存できる列」を明示する
      * セキュリティ対策: ここに書いた列だけ外部からの入力を受け付ける
