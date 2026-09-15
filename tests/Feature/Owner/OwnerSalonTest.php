@@ -72,4 +72,34 @@ class OwnerSalonTest extends TestCase
 
         $response->assertRedirect(route('login'));
     }
+
+    public function test_ログイン済みなら誰でも新規サロンを登録でき自分がオーナーになる(): void
+    {
+        // まだ1件もサロンを持っていない、ただのユーザーでも登録できることを確認する
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('owner.salons.store'), [
+            'genre'   => 'nail',
+            'name'    => '新しいサロン',
+            'address' => '東京都渋谷区1-1-1',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('salons', [
+            'name'    => '新しいサロン',
+            'user_id' => $user->id,
+        ]);
+    }
+
+    public function test_未ログインでは新規サロンを登録できない(): void
+    {
+        $response = $this->post(route('owner.salons.store'), [
+            'genre'   => 'hair',
+            'name'    => '不正登録',
+            'address' => 'どこか',
+        ]);
+
+        $response->assertRedirect(route('login'));
+        $this->assertDatabaseCount('salons', 0);
+    }
 }

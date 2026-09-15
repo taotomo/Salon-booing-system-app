@@ -5,6 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * staffsテーブルに対応するModel（Laravelの機能：Eloquent ORM）
+ * サロンに所属する美容師・ネイリストなどのスタッフ1人＝このモデル1件
+ */
 class Staff extends Model
 {
     use HasFactory;

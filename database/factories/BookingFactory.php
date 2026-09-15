@@ -10,6 +10,8 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
+ * Bookingモデルのダミーデータ生成用Factory
+ *
  * @extends Factory<Booking>
  */
 class BookingFactory extends Factory

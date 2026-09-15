@@ -8,6 +8,9 @@ use App\Models\Service;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+/**
+ * サロンオーナー向けのメニュー（サービス）管理（登録・編集・削除）を担当するController
+ */
 class OwnerServiceController extends Controller
 {
     /**

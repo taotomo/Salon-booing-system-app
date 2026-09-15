@@ -5,6 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * servicesテーブルに対応するModel（Laravelの機能：Eloquent ORM）
+ * サロンが提供するメニュー（カット、カラー等）1件＝このモデル1件
+ */
 class Service extends Model
 {
     use HasFactory;

@@ -1,4 +1,5 @@
 import DangerButton from '@/Components/DangerButton';
+import ImageUploadInput from '@/Components/ImageUploadInput';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import Modal from '@/Components/Modal';
@@ -21,17 +22,23 @@ type Props = PageProps<{
  * 上部に新規登録フォーム、下部に登録済みスタッフの一覧（編集・削除つき）を表示する
  */
 export default function Index({ auth, salon }: Props) {
-    const createForm = useForm({
+    const createForm = useForm<{
+        name: string;
+        position: string;
+        bio: string;
+        image: File | null;
+    }>({
         name: '',
         position: '',
         bio: '',
-        image: '',
+        image: null,
     });
 
     const handleCreate = (e: FormEvent) => {
         e.preventDefault();
         createForm.post(route('owner.staffs.store', salon.id), {
             preserveScroll: true,
+            forceFormData: true,
             onSuccess: () => createForm.reset(),
         });
     };
@@ -110,21 +117,14 @@ export default function Index({ auth, salon }: Props) {
                             />
                         </div>
                         <div className="sm:col-span-2">
-                            <InputLabel
-                                htmlFor="image"
-                                value="画像URL（任意）"
-                            />
-                            <TextInput
+                            <ImageUploadInput
                                 id="image"
-                                value={createForm.data.image}
-                                onChange={(e) =>
-                                    createForm.setData(
-                                        'image',
-                                        e.target.value,
-                                    )
+                                label="画像（任意）"
+                                currentImageUrl={null}
+                                onChange={(file) =>
+                                    createForm.setData('image', file)
                                 }
-                                className="mt-1 w-full text-sm"
-                                placeholder="https://..."
+                                error={createForm.errors.image}
                             />
                         </div>
                     </div>
@@ -170,17 +170,25 @@ function StaffRow({
 }) {
     const [isEditing, setIsEditing] = useState(false);
 
-    const editForm = useForm({
+    const editForm = useForm<{
+        name: string;
+        position: string;
+        bio: string;
+        image: File | null;
+        _method: 'put';
+    }>({
         name: staff.name,
         position: staff.position ?? '',
         bio: staff.bio ?? '',
-        image: staff.image ?? '',
+        image: null,
+        _method: 'put',
     });
 
     const handleUpdate = (e: FormEvent) => {
         e.preventDefault();
-        editForm.put(route('owner.staffs.update', staff.id), {
+        editForm.post(route('owner.staffs.update', staff.id), {
             preserveScroll: true,
+            forceFormData: true,
             onSuccess: () => setIsEditing(false),
         });
     };
@@ -267,17 +275,15 @@ function StaffRow({
                                 className="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-orange-400 focus:ring-orange-400"
                             />
                         </div>
-                        <div>
-                            <InputLabel htmlFor="edit_image" value="画像URL" />
-                            <TextInput
-                                id="edit_image"
-                                value={editForm.data.image}
-                                onChange={(e) =>
-                                    editForm.setData('image', e.target.value)
-                                }
-                                className="mt-1 w-full text-sm"
-                            />
-                        </div>
+                        <ImageUploadInput
+                            id="edit_image"
+                            label="画像"
+                            currentImageUrl={staff.image}
+                            onChange={(file) =>
+                                editForm.setData('image', file)
+                            }
+                            error={editForm.errors.image}
+                        />
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3">
@@ -299,3 +305,13 @@ function StaffRow({
         </div>
     );
 }
+
+/**
+ * このファイルの読み方メモ（初心者向け）
+ *
+ * `salon.staffs?.length === 0 && (...)`
+ * salon.staffs?. の「?.」はオプショナルチェイニングと呼ばれるJavaScriptの書き方で、
+ * salon.staffsがundefinedのときにエラーにならず、そのままundefinedを返す（安全にアクセスできる）。
+ * その上で「配列の件数が0のときだけ」右側の「まだ登録されていません」の文言を表示している。
+ * （1件以上あるときはこの行自体はfalseになり何も表示されず、下のmap()による一覧だけが出る）
+ */

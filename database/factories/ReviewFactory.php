@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
+ * Reviewモデルのダミーデータ生成用Factory
+ *
  * @extends Factory<Review>
  */
 class ReviewFactory extends Factory

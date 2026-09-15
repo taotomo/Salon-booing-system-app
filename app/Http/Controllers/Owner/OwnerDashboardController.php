@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 
+/**
+ * サロンオーナー向けダッシュボード（管理画面のトップページ）を担当するController
+ */
 class OwnerDashboardController extends Controller
 {
     /**

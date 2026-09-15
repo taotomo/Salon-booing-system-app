@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Salon;
 use App\Models\Staff;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
+/**
+ * サロンオーナー向けのスタッフ管理（登録・編集・削除）を担当するController
+ */
 class OwnerStaffController extends Controller
 {
     /**
@@ -37,8 +41,12 @@ class OwnerStaffController extends Controller
             'name'     => 'required|string|max:255',
             'position' => 'nullable|string|max:255',
             'bio'      => 'nullable|string|max:1000',
-            'image'    => 'nullable|url|max:2000',
+            'image'    => 'nullable|image|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $this->storeImage($request);
+        }
 
         $salon->staffs()->create($validated);
 
@@ -59,8 +67,14 @@ class OwnerStaffController extends Controller
             'name'     => 'required|string|max:255',
             'position' => 'nullable|string|max:255',
             'bio'      => 'nullable|string|max:1000',
-            'image'    => 'nullable|url|max:2000',
+            'image'    => 'nullable|image|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $this->storeImage($request);
+        } else {
+            unset($validated['image']);
+        }
 
         $staff->update($validated);
 
@@ -78,5 +92,16 @@ class OwnerStaffController extends Controller
         $staff->delete();
 
         return back()->with('success', 'スタッフを削除しました。');
+    }
+
+    /**
+     * アップロードされた画像ファイルをstorage/app/public/staffsに保存し、
+     * ブラウザからアクセスできるURL（/storage/staffs/xxxx.jpg）を返す
+     */
+    private function storeImage(Request $request): string
+    {
+        $path = $request->file('image')->store('staffs', 'public');
+
+        return Storage::disk('public')->url($path);
     }
 }

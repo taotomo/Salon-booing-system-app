@@ -7,6 +7,8 @@ use App\Models\Service;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
+ * Serviceモデルのダミーデータ生成用Factory
+ *
  * @extends Factory<Service>
  */
 class ServiceFactory extends Factory

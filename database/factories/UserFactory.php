@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
+ * Factory（Laravelの機能）= テストやシーディングで「ダミーの1件」を簡単に作るための工場クラス
+ * User::factory()->create() のように呼ぶと、definition()の内容でダミーユーザーが1件作られる
+ *
  * @extends Factory<User>
  */
 class UserFactory extends Factory

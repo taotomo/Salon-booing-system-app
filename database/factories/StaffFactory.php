@@ -7,6 +7,9 @@ use App\Models\Staff;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
+ * Staffモデルのダミーデータ生成用Factory
+ * salon_id => Salon::factory() = 指定しなければ、紐づくSalonも自動的に1件新規作成される
+ *
  * @extends Factory<Staff>
  */
 class StaffFactory extends Factory

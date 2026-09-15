@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
+ * Salonモデルのダミーデータ生成用Factory（テスト・シーダーで使用）
+ * $this->faker（fakerライブラリ）で、それっぽいランダムな会社名・住所などを自動生成する
+ *
  * @extends Factory<Salon>
  */
 class SalonFactory extends Factory

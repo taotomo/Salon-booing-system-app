@@ -4,21 +4,19 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import SiteLayout from '@/Layouts/SiteLayout';
-import { PageProps, Salon, SalonGenre } from '@/types';
+import { PageProps, SalonGenre } from '@/types';
 import { GENRE_LABEL } from '@/utils/genre';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEvent } from 'react';
 
-type Props = PageProps<{
-    salon: Salon;
-}>;
-
 /**
- * サロン編集フォーム（オーナー向け）
- * URL: GET /owner/salons/{salon}/edit
+ * 新規サロン登録フォーム
+ * URL: GET /owner/salons/create（要ログイン。オーナーである必要はない）
+ *
+ * ここで登録すると、そのまま自分がオーナーとしてこのサロンを管理できるようになる
  */
-export default function Edit({ auth, salon }: Props) {
-    const { data, setData, processing, errors, post } = useForm<{
+export default function Create({ auth }: PageProps) {
+    const { data, setData, post, processing, errors } = useForm<{
         genre: SalonGenre;
         name: string;
         address: string;
@@ -27,44 +25,45 @@ export default function Edit({ auth, salon }: Props) {
         image: File | null;
         lat: string;
         lng: string;
-        _method: 'put';
     }>({
-        genre: salon.genre,
-        name: salon.name,
-        address: salon.address,
-        phone: salon.phone ?? '',
-        description: salon.description ?? '',
+        genre: 'hair',
+        name: '',
+        address: '',
+        phone: '',
+        description: '',
         image: null,
-        lat: salon.lat !== null ? String(salon.lat) : '',
-        lng: salon.lng !== null ? String(salon.lng) : '',
-        // 画像ファイルをPUTで送るとブラウザ・サーバーによって扱いが不安定なため、
-        // Inertiaの定石通り「POST + _methodでPUTを偽装」する
-        _method: 'put',
+        lat: '',
+        lng: '',
     });
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
-        post(route('owner.salons.update', salon.id), {
+        // forceFormData: true = 画像ファイルを含むデータを、通常のJSONではなく
+        // multipart/form-data形式（ファイルを送れる形式）で送信するようInertiaに指示する
+        post(route('owner.salons.store'), {
             forceFormData: true,
         });
     };
 
     return (
         <SiteLayout user={auth.user} isOwner={auth.isOwner}>
-            <Head title={`${salon.name} を編集`} />
+            <Head title="サロンを登録する" />
 
             <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
                 <Link
-                    href={route('owner.dashboard')}
+                    href={route('salons.index')}
                     className="text-sm text-gray-500 transition hover:text-orange-500"
                 >
-                    ← ダッシュボードに戻る
+                    ← サロン一覧に戻る
                 </Link>
 
                 <div className="mt-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 sm:p-8">
                     <h1 className="text-xl font-extrabold text-gray-900">
-                        サロン情報を編集
+                        サロンを登録する
                     </h1>
+                    <p className="mt-1 text-sm text-gray-500">
+                        登録すると、あなたがこのサロンのオーナーとして管理できるようになります。
+                    </p>
 
                     <form onSubmit={submit} className="mt-6 space-y-5">
                         <div>
@@ -88,7 +87,10 @@ export default function Edit({ auth, salon }: Props) {
                                     ),
                                 )}
                             </select>
-                            <InputError message={errors.genre} className="mt-1" />
+                            <InputError
+                                message={errors.genre}
+                                className="mt-1"
+                            />
                         </div>
 
                         <div>
@@ -101,7 +103,10 @@ export default function Edit({ auth, salon }: Props) {
                                 }
                                 className="mt-1 w-full text-sm"
                             />
-                            <InputError message={errors.name} className="mt-1" />
+                            <InputError
+                                message={errors.name}
+                                className="mt-1"
+                            />
                         </div>
 
                         <div>
@@ -113,6 +118,7 @@ export default function Edit({ auth, salon }: Props) {
                                     setData('address', e.target.value)
                                 }
                                 className="mt-1 w-full text-sm"
+                                placeholder="例: 東京都渋谷区道玄坂1-2-3"
                             />
                             <InputError
                                 message={errors.address}
@@ -130,11 +136,17 @@ export default function Edit({ auth, salon }: Props) {
                                 }
                                 className="mt-1 w-full text-sm"
                             />
-                            <InputError message={errors.phone} className="mt-1" />
+                            <InputError
+                                message={errors.phone}
+                                className="mt-1"
+                            />
                         </div>
 
                         <div>
-                            <InputLabel htmlFor="description" value="説明文" />
+                            <InputLabel
+                                htmlFor="description"
+                                value="説明文"
+                            />
                             <textarea
                                 id="description"
                                 value={data.description}
@@ -143,6 +155,7 @@ export default function Edit({ auth, salon }: Props) {
                                 }
                                 rows={4}
                                 className="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-orange-400 focus:ring-orange-400"
+                                placeholder="サロンの特徴やアピールポイントを書いてください"
                             />
                             <InputError
                                 message={errors.description}
@@ -152,15 +165,18 @@ export default function Edit({ auth, salon }: Props) {
 
                         <ImageUploadInput
                             id="image"
-                            label="メイン画像"
-                            currentImageUrl={salon.image}
+                            label="メイン画像（任意）"
+                            currentImageUrl={null}
                             onChange={(file) => setData('image', file)}
                             error={errors.image}
                         />
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <InputLabel htmlFor="lat" value="緯度" />
+                                <InputLabel
+                                    htmlFor="lat"
+                                    value="緯度（任意）"
+                                />
                                 <TextInput
                                     id="lat"
                                     value={data.lat}
@@ -176,7 +192,10 @@ export default function Edit({ auth, salon }: Props) {
                                 />
                             </div>
                             <div>
-                                <InputLabel htmlFor="lng" value="経度" />
+                                <InputLabel
+                                    htmlFor="lng"
+                                    value="経度（任意）"
+                                />
                                 <TextInput
                                     id="lng"
                                     value={data.lng}
@@ -197,7 +216,7 @@ export default function Edit({ auth, salon }: Props) {
                             disabled={processing}
                             className="!bg-gradient-to-r !from-orange-400 !to-rose-500"
                         >
-                            {processing ? '保存中...' : '保存する'}
+                            {processing ? '登録中...' : '登録する'}
                         </PrimaryButton>
                     </form>
                 </div>

@@ -109,3 +109,12 @@ export default function Dashboard({ auth, salons }: Props) {
         </SiteLayout>
     );
 }
+
+/**
+ * このファイルの読み方メモ（初心者向け）
+ *
+ * `A ? B : C`（三項演算子） ※例: salons.length === 0 ? B : C
+ * 所有サロンが0件かどうかで、表示するJSXをまるごと出し分けている。
+ * `!!salon.pending_bookings_count && (...)` は、件数が0（＝falsy）でなければ
+ * 「申請中◯件」のバッジを表示するという意味（!!は「truthy/falsyを明確なbooleanに変換する」書き方）。
+ */
