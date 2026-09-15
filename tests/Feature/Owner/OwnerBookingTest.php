@@ -5,7 +5,9 @@ namespace Tests\Feature\Owner;
 use App\Models\Booking;
 use App\Models\Salon;
 use App\Models\User;
+use App\Notifications\BookingStatusUpdated;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class OwnerBookingTest extends TestCase
@@ -40,6 +42,26 @@ class OwnerBookingTest extends TestCase
 
         $response->assertRedirect();
         $this->assertSame('confirmed', $booking->fresh()->status);
+    }
+
+    public function test_ステータス変更で予約者に通知が送られる(): void
+    {
+        Notification::fake();
+
+        $owner = User::factory()->create();
+        $bookingUser = User::factory()->create();
+        $salon = Salon::factory()->create(['user_id' => $owner->id]);
+        $booking = Booking::factory()->create([
+            'salon_id' => $salon->id,
+            'user_id'  => $bookingUser->id,
+            'status'   => 'pending',
+        ]);
+
+        $this->actingAs($owner)->patch(route('owner.bookings.updateStatus', $booking), [
+            'status' => 'confirmed',
+        ]);
+
+        Notification::assertSentTo($bookingUser, BookingStatusUpdated::class);
     }
 
     public function test_他人のサロン宛の予約は承認もキャンセルもできない(): void

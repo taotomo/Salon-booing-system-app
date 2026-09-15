@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * bookingsテーブルに対応するModel（Laravelの機能：Eloquent ORM）
+ * 「誰が・どのサロンの・どのスタッフに・どのメニューを・いつ予約したか」を1件で表す
+ * statusには 'pending'（承認待ち）/'confirmed'（確定）/'cancelled'（キャンセル）のいずれかが入る
+ */
 class Booking extends Model
 {
     use HasFactory;

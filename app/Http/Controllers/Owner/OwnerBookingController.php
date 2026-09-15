@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Notifications\BookingStatusUpdated;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+/**
+ * サロンオーナー向けの予約管理（一覧確認・承認/キャンセル）を担当するController
+ */
 class OwnerBookingController extends Controller
 {
     /**
@@ -44,6 +48,10 @@ class OwnerBookingController extends Controller
         ]);
 
         $booking->update($validated);
+
+        // 予約したユーザーに「確定/キャンセルされました」と通知する
+        $booking->load('user');
+        $booking->user->notify(new BookingStatusUpdated($booking));
 
         return back()->with('success', '予約ステータスを更新しました。');
     }

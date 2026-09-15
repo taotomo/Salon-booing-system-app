@@ -54,6 +54,8 @@ export default function Index({ auth, bookings }: Props) {
                     予約履歴
                 </h1>
 
+                {/* `条件 ? A : B`（三項演算子）で、予約が0件かどうかによって
+                    表示するJSXをまるごと出し分けている（空状態の案内 or 予約一覧） */}
                 {bookings.length === 0 ? (
                     <div className="rounded-2xl bg-white p-12 text-center shadow-sm ring-1 ring-gray-100">
                         <p className="text-sm text-gray-500">
@@ -133,3 +135,19 @@ export default function Index({ auth, bookings }: Props) {
         </SiteLayout>
     );
 }
+
+/**
+ * このファイルの読み方メモ（初心者向け）
+ *
+ * 1. `A ? B : C`（三項演算子）  ※例: bookings.length === 0 ? B : C
+ *    予約が0件かどうかで、表示するJSXをまるごと出し分けている
+ *    （0件なら「まだ予約がありません」の案内、1件以上なら予約カードの一覧）。
+ *
+ * 2. `配列.map((要素) => (...))`
+ *    予約を1件ずつカードに変換して並べる。key={booking.id}はReactが
+ *    各カードを区別するために一覧表示で必ず必要になる目印。
+ *
+ * 3. `isCancellable(booking) && (...)`
+ *    isCancellable()がtrueを返したときだけ「キャンセルする」ボタンを表示する
+ *    （キャンセル済み、または予約日時が過去の場合はボタンごと非表示になる）。
+ */

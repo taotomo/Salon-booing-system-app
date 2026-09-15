@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Salon;
+use App\Notifications\NewBookingReceived;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+/**
+ * 一般ユーザー向けの予約機能を担当するController
+ * 予約フォーム表示→保存→完了ページ→予約一覧→キャンセル、という一連の流れをまとめている
+ */
 class BookingController extends Controller
 {
     /**
@@ -50,6 +55,10 @@ class BookingController extends Controller
 
         // DBに保存する
         $booking = Booking::create($validated);
+
+        // サロンのオーナーに「新しい予約が入りました」と通知する
+        $booking->load('salon.owner');
+        $booking->salon->owner->notify(new NewBookingReceived($booking));
 
         // 保存後は専用の予約完了ページにリダイレクトする
         return redirect()->route('bookings.complete', $booking)

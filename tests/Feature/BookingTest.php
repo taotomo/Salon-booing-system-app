@@ -7,7 +7,9 @@ use App\Models\Salon;
 use App\Models\Service;
 use App\Models\Staff;
 use App\Models\User;
+use App\Notifications\NewBookingReceived;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 /**
@@ -62,6 +64,24 @@ class BookingTest extends TestCase
         // 保存後は専用の予約完了ページにリダイレクトされる
         $booking = Booking::first();
         $response->assertRedirect(route('bookings.complete', $booking));
+    }
+
+    public function test_予約が入るとサロンオーナーに通知が送られる(): void
+    {
+        Notification::fake();
+
+        [$salon, $staff, $service] = $this->createSalonWithStaffAndService();
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('bookings.store'), [
+            'salon_id'   => $salon->id,
+            'staff_id'   => $staff->id,
+            'service_id' => $service->id,
+            'start_at'   => now()->addDays(3)->format('Y-m-d H:i:s'),
+        ]);
+
+        // サロンのオーナー（$salon->owner）宛に通知が1件送られたことを確認する
+        Notification::assertSentTo($salon->owner, NewBookingReceived::class);
     }
 
     public function test_過去の日時では予約できない(): void

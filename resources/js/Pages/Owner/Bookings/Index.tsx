@@ -160,3 +160,14 @@ export default function Index({ auth, bookings }: Props) {
         </SiteLayout>
     );
 }
+
+/**
+ * このファイルの読み方メモ（初心者向け）
+ *
+ * 1. `A ? B : C`（三項演算子） ※例: bookings.length === 0 ? B : C
+ *    予約が0件かどうかで、表示するJSXをまるごと出し分けている。
+ *
+ * 2. `booking.status === 'pending' && (...)` / `booking.status === 'confirmed' && (...)`
+ *    予約のステータスが特定の値のときだけ、それぞれのボタンを表示する
+ *    （pending＝承認待ちなら「承認する/キャンセルする」、confirmed＝確定済みなら「キャンセルする」のみ）。
+ */
