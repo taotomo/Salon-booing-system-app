@@ -31,7 +31,46 @@ class SalonTest extends TestCase
         $response->assertInertia(
             fn (Assert $page) => $page
                 ->component('Salons/Index')
-                ->has('salons', 3),
+                // salonsはpaginate()の結果なので、実際の一覧は salons.data に入っている
+                ->has('salons.data', 3),
+        );
+    }
+
+    public function test_エリアで絞り込める(): void
+    {
+        Salon::factory()->create(['address' => '東京都渋谷区道玄坂1-2-3']);
+        Salon::factory()->create(['address' => '大阪府大阪市北区梅田1-3-1']);
+
+        $response = $this->get(route('salons.index', ['area' => '東京都']));
+
+        $response->assertInertia(
+            fn (Assert $page) => $page->has('salons.data', 1),
+        );
+    }
+
+    public function test_ジャンルで絞り込める(): void
+    {
+        Salon::factory()->create(['genre' => 'hair']);
+        Salon::factory()->create(['genre' => 'nail']);
+
+        $response = $this->get(route('salons.index', ['genre' => 'nail']));
+
+        $response->assertInertia(
+            fn (Assert $page) => $page->has('salons.data', 1),
+        );
+    }
+
+    public function test_1ページに6件までしか表示されない(): void
+    {
+        Salon::factory()->count(9)->create();
+
+        $response = $this->get(route('salons.index'));
+
+        $response->assertInertia(
+            fn (Assert $page) => $page
+                ->has('salons.data', 6)
+                ->where('salons.total', 9)
+                ->where('salons.last_page', 2),
         );
     }
 
