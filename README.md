@@ -29,7 +29,7 @@ Hot Pepper Beautyのような、サロン（美容室・ネイル・まつげ・
 
 | 分類 | 技術 |
 |---|---|
-| バックエンド | Laravel 12 (PHP 8.4) |
+| バックエンド | Laravel 13 (PHP 8.4) |
 | フロントエンド | React + TypeScript |
 | Laravel⇔React連携 | Inertia.js（REST/GraphQL APIを別途叩くSPAではなく、コントローラーが直接Reactページを返す構成） |
 | スタイリング | Tailwind CSS |
