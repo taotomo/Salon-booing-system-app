@@ -5,6 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * reviewsテーブルに対応するModel（Laravelの機能：Eloquent ORM）
+ * ユーザーがサロンに投稿した口コミ（評価点＋コメント）1件＝このモデル1件
+ */
 class Review extends Model
 {
     use HasFactory;
