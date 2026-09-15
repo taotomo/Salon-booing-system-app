@@ -1,5 +1,6 @@
 import { ButtonHTMLAttributes } from 'react';
 
+// 削除・退会など「危険な操作」用の赤いボタン（Laravel Breeze標準コンポーネント）
 export default function DangerButton({
     className = '',
     disabled,

@@ -1,5 +1,6 @@
 import { LabelHTMLAttributes } from 'react';
 
+// フォームの入力欄のラベル（<label>）を共通スタイルで表示する
 export default function InputLabel({
     value,
     className = '',

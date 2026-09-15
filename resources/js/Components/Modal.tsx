@@ -1,3 +1,5 @@
+// Dialog/DialogPanel = Headless UIが提供する「モーダルウィンドウ」の土台コンポーネント
+// フォーカス管理（Tabキーがモーダルの外に逃げない等）やEscキーでの閉じる操作を自動でやってくれる
 import {
     Dialog,
     DialogPanel,
@@ -6,6 +8,7 @@ import {
 } from '@headlessui/react';
 import { PropsWithChildren } from 'react';
 
+// 汎用モーダルウィンドウ。showがtrueの間だけ表示される
 export default function Modal({
     children,
     show = false,

@@ -6,6 +6,10 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
+/**
+ * 重要操作の前にパスワードを再確認するページ（ConfirmablePasswordController::showに対応）
+ * URL: GET /confirm-password
+ */
 export default function ConfirmPassword() {
     const { data, setData, post, processing, errors, reset } = useForm({
         password: '',
@@ -21,16 +25,19 @@ export default function ConfirmPassword() {
 
     return (
         <GuestLayout>
-            <Head title="Confirm Password" />
+            <Head title="パスワードの確認" />
+
+            <h1 className="mb-4 text-lg font-bold text-gray-800">
+                パスワードの確認
+            </h1>
 
             <div className="mb-4 text-sm text-gray-600">
-                This is a secure area of the application. Please confirm your
-                password before continuing.
+                これはアプリの中でも重要な操作を行うページです。続行する前に、パスワードを再入力して本人確認をしてください。
             </div>
 
             <form onSubmit={submit}>
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="パスワード" />
 
                     <TextInput
                         id="password"
@@ -47,7 +54,7 @@ export default function ConfirmPassword() {
 
                 <div className="mt-4 flex items-center justify-end">
                     <PrimaryButton className="ms-4" disabled={processing}>
-                        Confirm
+                        確認する
                     </PrimaryButton>
                 </div>
             </form>

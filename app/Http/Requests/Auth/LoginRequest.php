@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * ログインフォーム専用のバリデーション＋認証処理クラス（Laravelの機能：Form Request）
+ * Laravel Breezeが自動生成したもの。バリデーションだけでなく、
+ * 「実際にログインを試みる処理(authenticate)」や「連続失敗を防ぐ処理」までまとめて持っている
+ */
 class LoginRequest extends FormRequest
 {
     /**
@@ -40,9 +45,13 @@ class LoginRequest extends FormRequest
      */
     public function authenticate(): void
     {
+        // まず「ログイン試行回数が制限を超えていないか」をチェックする
         $this->ensureIsNotRateLimited();
 
+        // Auth::attempt() = 入力されたメール・パスワードが正しいか照合し、
+        // 正しければセッションにログイン状態を保存してくれる（Laravelの認証機能）
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            // 失敗した場合は「失敗回数」を1つ記録しておく（RateLimiter = 回数制限の仕組み）
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -50,6 +59,7 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // ログイン成功したら、それまでの失敗回数の記録をリセットする
         RateLimiter::clear($this->throttleKey());
     }
 

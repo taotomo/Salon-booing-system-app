@@ -3,7 +3,12 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
+/**
+ * メールアドレス確認案内ページ（EmailVerificationPromptController::__invokeに対応）
+ * URL: GET /verify-email
+ */
 export default function VerifyEmail({ status }: { status?: string }) {
+    // 送信するデータが無いフォームなのでuseForm({})でOK（processing/postだけ使う）
     const { post, processing } = useForm({});
 
     const submit: FormEventHandler = (e) => {
@@ -14,35 +19,35 @@ export default function VerifyEmail({ status }: { status?: string }) {
 
     return (
         <GuestLayout>
-            <Head title="Email Verification" />
+            <Head title="メールアドレスの確認" />
+
+            <h1 className="mb-4 text-lg font-bold text-gray-800">
+                メールアドレスの確認
+            </h1>
 
             <div className="mb-4 text-sm text-gray-600">
-                Thanks for signing up! Before getting started, could you verify
-                your email address by clicking on the link we just emailed to
-                you? If you didn't receive the email, we will gladly send you
-                another.
+                ご登録ありがとうございます！ご利用を開始する前に、先ほどお送りしたメール内のリンクをクリックして、メールアドレスの確認をお願いします。メールが届いていない場合は、下のボタンから再送できます。
             </div>
 
             {status === 'verification-link-sent' && (
                 <div className="mb-4 text-sm font-medium text-green-600">
-                    A new verification link has been sent to the email address
-                    you provided during registration.
+                    ご登録いただいたメールアドレス宛に、新しい確認用リンクを送信しました。
                 </div>
             )}
 
             <form onSubmit={submit}>
                 <div className="mt-4 flex items-center justify-between">
                     <PrimaryButton disabled={processing}>
-                        Resend Verification Email
+                        確認メールを再送する
                     </PrimaryButton>
 
                     <Link
                         href={route('logout')}
                         method="post"
                         as="button"
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="text-sm text-gray-500 underline hover:text-orange-500"
                     >
-                        Log Out
+                        ログアウト
                     </Link>
                 </div>
             </form>

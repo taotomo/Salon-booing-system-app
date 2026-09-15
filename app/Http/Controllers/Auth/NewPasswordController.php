@@ -14,10 +14,16 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * パスワード再設定メール内のリンクから開く「新しいパスワードを入力する」画面のController
+ * （Laravel Breeze自動生成）
+ */
 class NewPasswordController extends Controller
 {
     /**
      * Display the password reset view.
+     * GET /reset-password/{token} → 新パスワード入力フォームを表示
+     * {token} = メール送信時に発行された、なりすまし防止用の使い捨てコード
      */
     public function create(Request $request): Response
     {
@@ -29,6 +35,7 @@ class NewPasswordController extends Controller
 
     /**
      * Handle an incoming new password request.
+     * POST /reset-password → tokenが正しければパスワードを更新する
      *
      * @throws ValidationException
      */

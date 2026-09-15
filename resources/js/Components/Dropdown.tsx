@@ -1,3 +1,5 @@
+// Transition = Headless UI（アクセシブルなUI部品を提供するライブラリ）の
+// フェードイン/アウトなどのアニメーション用コンポーネント
 import { Transition } from '@headlessui/react';
 import { InertiaLinkProps, Link } from '@inertiajs/react';
 import {
@@ -9,6 +11,12 @@ import {
     useState,
 } from 'react';
 
+/**
+ * ヘッダー右上の「ユーザー名 ▼」のようなドロップダウンメニューを作る共通コンポーネント
+ * <Dropdown><Dropdown.Trigger>...</Dropdown.Trigger><Dropdown.Content>...</Dropdown.Content></Dropdown>
+ * のように、開閉状態(open)をContext（Reactの機能：離れた場所同士で状態を共有する仕組み）で
+ * Trigger（クリックする部分）とContent（開く中身）の間で共有している
+ */
 const DropDownContext = createContext<{
     open: boolean;
     setOpen: Dispatch<SetStateAction<boolean>>;

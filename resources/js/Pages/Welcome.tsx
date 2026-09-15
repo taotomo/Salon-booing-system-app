@@ -1,6 +1,9 @@
 import { PageProps } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
+// Laravel（Breeze）が最初から用意しているデフォルトのウェルカムページ
+// routes/web.php の Route::get('/', ...) に対応する。中身はほぼLaravel標準のまま
+// （デザインを大きく変える場合は、このファイルを丸ごと作り直すのが一般的）
 export default function Welcome({
     auth,
     laravelVersion,

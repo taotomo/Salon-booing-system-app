@@ -1,5 +1,7 @@
+// InertiaLinkProps = Inertiaの<Link>が受け取れるprops（href, method等）の型
 import { InertiaLinkProps, Link } from '@inertiajs/react';
 
+// PC向けヘッダーのナビリンク。activeがtrueなら「現在表示中のページ」として下線を強調する
 export default function NavLink({
     active = false,
     className = '',

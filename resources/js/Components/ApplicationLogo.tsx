@@ -1,5 +1,7 @@
 import { SVGAttributes } from 'react';
 
+// Laravel Breezeが最初から用意しているロゴのSVG（現在はこのサイトのヘッダーでは未使用）
+// props経由でclassNameなどをそのまま<svg>タグに渡せるようにしている
 export default function ApplicationLogo(props: SVGAttributes<SVGElement>) {
     return (
         <svg

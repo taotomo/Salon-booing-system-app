@@ -1,10 +1,15 @@
 import InputError from '@/Components/InputError';
+import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
+/**
+ * パスワード再設定メール送信フォーム（PasswordResetLinkController::createに対応）
+ * URL: GET /forgot-password
+ */
 export default function ForgotPassword({ status }: { status?: string }) {
     const { data, setData, post, processing, errors } = useForm({
         email: '',
@@ -18,12 +23,14 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
     return (
         <GuestLayout>
-            <Head title="Forgot Password" />
+            <Head title="パスワードをお忘れの方" />
+
+            <h1 className="mb-4 text-lg font-bold text-gray-800">
+                パスワードをお忘れの方
+            </h1>
 
             <div className="mb-4 text-sm text-gray-600">
-                Forgot your password? No problem. Just let us know your email
-                address and we will email you a password reset link that will
-                allow you to choose a new one.
+                登録済みのメールアドレスを入力してください。パスワードを再設定するためのリンクをメールでお送りします。
             </div>
 
             {status && (
@@ -33,6 +40,8 @@ export default function ForgotPassword({ status }: { status?: string }) {
             )}
 
             <form onSubmit={submit}>
+                <InputLabel htmlFor="email" value="メールアドレス" />
+
                 <TextInput
                     id="email"
                     type="email"
@@ -47,7 +56,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
                 <div className="mt-4 flex items-center justify-end">
                     <PrimaryButton className="ms-4" disabled={processing}>
-                        Email Password Reset Link
+                        再設定用のメールを送信する
                     </PrimaryButton>
                 </div>
             </form>

@@ -7,6 +7,10 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
+/**
+ * ログインページ（AuthenticatedSessionController::createに対応）
+ * URL: GET /login
+ */
 export default function Login({
     status,
     canResetPassword,
@@ -14,6 +18,9 @@ export default function Login({
     status?: string;
     canResetPassword: boolean;
 }) {
+    // useForm = Inertia.jsのフォーム管理フック
+    // data: 入力値 / setData: 値の更新 / post: 送信 / processing: 送信中フラグ
+    // errors: サーバー側バリデーションのエラーメッセージ / reset: 指定したフィールドを空に戻す
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -30,7 +37,11 @@ export default function Login({
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="ログイン" />
+
+            <h1 className="mb-6 text-lg font-bold text-gray-800">
+                ログイン
+            </h1>
 
             {status && (
                 <div className="mb-4 text-sm font-medium text-green-600">
@@ -40,7 +51,7 @@ export default function Login({
 
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value="メールアドレス" />
 
                     <TextInput
                         id="email"
@@ -57,7 +68,7 @@ export default function Login({
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="パスワード" />
 
                     <TextInput
                         id="password"
@@ -85,26 +96,39 @@ export default function Login({
                             }
                         />
                         <span className="ms-2 text-sm text-gray-600">
-                            Remember me
+                            ログイン状態を保持する
                         </span>
                     </label>
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
+                <div className="mt-6 flex items-center justify-between">
                     {canResetPassword && (
                         <Link
                             href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            className="text-sm text-gray-500 underline hover:text-orange-500"
                         >
-                            Forgot your password?
+                            パスワードをお忘れですか？
                         </Link>
                     )}
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
+                    <PrimaryButton
+                        className="ms-auto"
+                        disabled={processing}
+                    >
+                        ログイン
                     </PrimaryButton>
                 </div>
             </form>
+
+            <p className="mt-6 text-center text-sm text-gray-500">
+                アカウントをお持ちでない方は{' '}
+                <Link
+                    href={route('register')}
+                    className="font-semibold text-orange-500 hover:underline"
+                >
+                    会員登録
+                </Link>
+            </p>
         </GuestLayout>
     );
 }

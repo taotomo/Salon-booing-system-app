@@ -10,10 +10,14 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * 「パスワードを忘れた場合」の再設定メール送信Controller（Laravel Breeze自動生成）
+ */
 class PasswordResetLinkController extends Controller
 {
     /**
      * Display the password reset link request view.
+     * GET /forgot-password → メールアドレス入力フォームを表示
      */
     public function create(): Response
     {
@@ -36,6 +40,7 @@ class PasswordResetLinkController extends Controller
         // We will send the password reset link to this user. Once we have attempted
         // to send the link, we will examine the response then see the message we
         // need to show to the user. Finally, we'll send out a proper response.
+        // （日本語訳：入力されたメール宛に再設定用リンクを送信する。Password::sendResetLink()はLaravel標準の機能）
         $status = Password::sendResetLink(
             $request->only('email')
         );

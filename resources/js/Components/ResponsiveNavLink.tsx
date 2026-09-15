@@ -1,5 +1,6 @@
 import { InertiaLinkProps, Link } from '@inertiajs/react';
 
+// スマホ表示（ハンバーガーメニューを開いたとき）用のナビリンク。NavLinkのモバイル版
 export default function ResponsiveNavLink({
     active = false,
     className = '',

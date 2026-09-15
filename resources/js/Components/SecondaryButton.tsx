@@ -1,5 +1,6 @@
 import { ButtonHTMLAttributes } from 'react';
 
+// 「キャンセル」など、主要操作ではないボタン用の控えめな白ボタン（Laravel Breeze標準コンポーネント）
 export default function SecondaryButton({
     type = 'button',
     className = '',
