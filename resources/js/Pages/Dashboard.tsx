@@ -1,12 +1,15 @@
+import FavoriteButton from '@/Components/FavoriteButton';
 import StarRating from '@/Components/StarRating';
 import SiteLayout from '@/Layouts/SiteLayout';
-import { Booking, PageProps, Review } from '@/types';
+import { Booking, PageProps, Review, Salon } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
 type Props = PageProps<{
     recentBookings: Booking[];
     recentReviews: Review[];
+    favoriteSalons: Salon[];
     bookingCount: number;
+    favoriteCount: number;
 }>;
 
 const STATUS_LABEL: Record<Booking['status'], string> = {
@@ -32,7 +35,9 @@ export default function Dashboard({
     auth,
     recentBookings,
     recentReviews,
+    favoriteSalons,
     bookingCount,
+    favoriteCount,
 }: Props) {
     return (
         <SiteLayout user={auth.user} isOwner={auth.isOwner}>
@@ -105,6 +110,50 @@ export default function Dashboard({
                     )}
                 </section>
 
+                {/* お気に入りサロン */}
+                <section className="mt-10">
+                    <div className="mb-3 flex items-center justify-between">
+                        <h2 className="font-bold text-gray-800">
+                            お気に入りサロン
+                        </h2>
+                        {favoriteCount > 0 && (
+                            <Link
+                                href={route('favorites.index')}
+                                className="text-sm font-semibold text-orange-500 hover:underline"
+                            >
+                                すべて見る（{favoriteCount}件）→
+                            </Link>
+                        )}
+                    </div>
+
+                    {favoriteSalons.length === 0 ? (
+                        <div className="rounded-2xl bg-white p-8 text-center text-sm text-gray-500 shadow-sm ring-1 ring-gray-100">
+                            まだお気に入りに登録したサロンがありません。サロン一覧のハートマークから登録できます。
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {favoriteSalons.map((salon) => (
+                                <div
+                                    key={salon.id}
+                                    className="flex items-center justify-between gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100"
+                                >
+                                    <Link
+                                        href={route('salons.show', salon.id)}
+                                        className="font-semibold text-gray-800 hover:text-orange-500"
+                                    >
+                                        {salon.name}
+                                    </Link>
+                                    <FavoriteButton
+                                        salonId={salon.id}
+                                        isFavorited={true}
+                                        isLoggedIn={true}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+
                 {/* 投稿したレビュー */}
                 <section className="mt-10">
                     <h2 className="mb-3 font-bold text-gray-800">
@@ -149,3 +198,19 @@ export default function Dashboard({
         </SiteLayout>
     );
 }
+
+/**
+ * このファイルの読み方メモ（初心者向け）
+ *
+ * 1. `A ? B : C`（三項演算子）
+ *    ※例: recentBookings.length === 0 ? B : C
+ *    「配列が0件かどうか」で、表示するJSXをB（空状態の案内）かC（一覧）に出し分けている。
+ *    recentBookings・favoriteSalons・recentReviewsの3箇所で同じパターンが登場する。
+ *
+ * 2. `変数 > 0 && (...)`  ※例: bookingCount > 0 && (...)
+ *    件数が1以上のときだけ「すべて見る」リンクを表示する（0件のときはリンク自体が不要なため）。
+ *
+ * 3. `配列.map((要素) => (...))`
+ *    配列を1件ずつJSXに変換して並べる。key={xxx.id}はReactが各要素を
+ *    区別するために一覧表示で必ず必要になる目印。
+ */

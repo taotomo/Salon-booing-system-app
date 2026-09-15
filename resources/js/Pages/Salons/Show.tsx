@@ -1,14 +1,17 @@
+import FavoriteButton from '@/Components/FavoriteButton';
 import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
 import StarRating from '@/Components/StarRating';
 import SiteLayout from '@/Layouts/SiteLayout';
-import { PageProps, Salon } from '@/types';
+import { PageProps, Review, Salon } from '@/types';
 import { GENRE_LABEL } from '@/utils/genre';
 import { formatPrice, summarizeReviews } from '@/utils/rating';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEvent } from 'react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { FormEvent, useState } from 'react';
 
 type Props = PageProps<{
     salon: Salon;
+    isFavorited: boolean;
 }>;
 
 /**
@@ -18,7 +21,7 @@ type Props = PageProps<{
  * 上から「メイン画像＋基本情報」「スタッフ」「メニュー」「口コミ」の順に並ぶ、
  * ホットペッパービューティーのサロン詳細ページを意識した構成。
  */
-export default function Show({ auth, salon }: Props) {
+export default function Show({ auth, salon, isFavorited }: Props) {
     const { average, count } = summarizeReviews(salon.reviews);
 
     // useForm = Inertia.jsのフォーム管理フック
@@ -57,9 +60,16 @@ export default function Show({ auth, salon }: Props) {
                 <section className="mt-6 rounded-2xl bg-white p-6 shadow-md sm:p-8">
                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                         <div>
-                            <span className="inline-block rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-500">
-                                {GENRE_LABEL[salon.genre]}
-                            </span>
+                            <div className="flex items-center gap-3">
+                                <span className="inline-block rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-500">
+                                    {GENRE_LABEL[salon.genre]}
+                                </span>
+                                <FavoriteButton
+                                    salonId={salon.id}
+                                    isFavorited={isFavorited}
+                                    isLoggedIn={auth.user !== null}
+                                />
+                            </div>
                             <h1 className="mt-2 text-2xl font-extrabold text-gray-900 sm:text-3xl">
                                 {salon.name}
                             </h1>
@@ -107,7 +117,12 @@ export default function Show({ auth, salon }: Props) {
                     )}
                 </section>
 
-                {/* スタッフ一覧 */}
+                {/* スタッフ一覧
+                  * `A && B && (...)` は「AとBが両方trueのときだけ(...)を表示する」という意味。
+                  * salon.staffsはprops型定義上「未定義かもしれない配列」なので、
+                  * まずsalon.staffsが存在するか（undefinedでないか）を確認し、
+                  * 次にその配列の中身が1件以上あるか（.length > 0）を確認している。
+                  * どちらもtrueのときだけ「スタッフ紹介」の見出しとカード一覧を表示する */}
                 {salon.staffs && salon.staffs.length > 0 && (
                     <section className="mt-10">
                         <h2 className="mb-4 text-lg font-bold text-gray-800">
@@ -147,7 +162,7 @@ export default function Show({ auth, salon }: Props) {
                     </section>
                 )}
 
-                {/* メニュー一覧 */}
+                {/* メニュー一覧（考え方はスタッフ一覧と同じ） */}
                 {salon.services && salon.services.length > 0 && (
                     <section className="mt-10">
                         <h2 className="mb-4 text-lg font-bold text-gray-800">
@@ -213,28 +228,18 @@ export default function Show({ auth, salon }: Props) {
                         口コミ（{count}件）
                     </h2>
 
+                    {/* 三項演算子 `条件 ? A : B` で「口コミが1件以上あるか」によって
+                        表示するJSXを丸ごと出し分けている（一覧を表示 or 「まだありません」の文言） */}
                     {salon.reviews && salon.reviews.length > 0 ? (
                         <div className="space-y-3">
                             {salon.reviews.map((review) => (
-                                <div
+                                <ReviewItem
                                     key={review.id}
-                                    className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <StarRating
-                                            rating={review.rating}
-                                            size="sm"
-                                        />
-                                        <span className="text-xs text-gray-500">
-                                            {review.user?.name ?? '匿名ユーザー'}
-                                        </span>
-                                    </div>
-                                    {review.comment && (
-                                        <p className="mt-2 text-sm text-gray-700">
-                                            {review.comment}
-                                        </p>
-                                    )}
-                                </div>
+                                    review={review}
+                                    isOwnReview={
+                                        auth.user?.id === review.user_id
+                                    }
+                                />
                             ))}
                         </div>
                     ) : (
@@ -243,7 +248,9 @@ export default function Show({ auth, salon }: Props) {
                         </p>
                     )}
 
-                    {/* 口コミ投稿フォーム（ログイン中のみ表示） */}
+                    {/* 口コミ投稿フォーム（ログイン中のみ表示）
+                        auth.userはログイン中ならUserオブジェクト、未ログインならnullなので、
+                        `auth.user && (...)` は「ログインしているときだけ表示する」という意味になる */}
                     {auth.user && (
                         <form
                             onSubmit={submitReview}
@@ -302,5 +309,135 @@ export default function Show({ auth, salon }: Props) {
                 </section>
             </div>
         </SiteLayout>
+    );
+}
+
+/**
+ * このファイルの読み方メモ（初心者向け）
+ *
+ * 1. `A && B && (...)`  ※例: salon.staffs && salon.staffs.length > 0 && (...)
+ *    左から順に評価され、全部trueのときだけ最後の(...)が表示される。
+ *    salon.staffsは「無いかもしれない配列（undefined）」なので、まず存在確認をしてから
+ *    件数（.length > 0）を確認している。どちらか一方でもfalsyなら何も表示されない。
+ *
+ * 2. `A ? B : C`  ※例: salon.reviews && salon.reviews.length > 0 ? B : C
+ *    三項演算子。「口コミが1件以上あるかどうか」で、表示するJSXをBかCのどちらかに
+ *    丸ごと出し分けている（一覧を出すか、「まだ口コミがありません」を出すか）。
+ *
+ * 3. `配列.map((要素) => (...))`
+ *    配列の中身を1件ずつJSXに変換して並べる。key={xxx.id}はReactが各要素を
+ *    区別するために一覧表示で必ず必要になる目印。
+ *
+ * 4. auth.user は「ログイン中ならUserオブジェクト、未ログインならnull」
+ *    なので `auth.user && (...)` は「ログインしているときだけ表示する」という意味になる。
+ */
+
+/**
+ * 口コミ1件分の表示
+ * 投稿した本人が見ているときだけ「編集」「削除」ボタンを出す
+ */
+function ReviewItem({
+    review,
+    isOwnReview,
+}: {
+    review: Review;
+    isOwnReview: boolean;
+}) {
+    const [isEditing, setIsEditing] = useState(false);
+
+    const editForm = useForm({
+        rating: review.rating,
+        comment: review.comment ?? '',
+    });
+
+    const handleUpdate = (e: FormEvent) => {
+        e.preventDefault();
+        editForm.put(route('reviews.update', review.id), {
+            preserveScroll: true,
+            onSuccess: () => setIsEditing(false),
+        });
+    };
+
+    const handleDelete = () => {
+        if (!window.confirm('この口コミを削除しますか？')) {
+            return;
+        }
+        router.delete(route('reviews.destroy', review.id), {
+            preserveScroll: true,
+        });
+    };
+
+    if (isEditing) {
+        return (
+            <form
+                onSubmit={handleUpdate}
+                className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100"
+            >
+                <StarRating
+                    rating={editForm.data.rating}
+                    onChange={(value) => editForm.setData('rating', value)}
+                    size="md"
+                />
+                <textarea
+                    value={editForm.data.comment}
+                    onChange={(e) =>
+                        editForm.setData('comment', e.target.value)
+                    }
+                    rows={3}
+                    className="mt-2 w-full rounded-lg border-gray-300 text-sm focus:border-orange-400 focus:ring-orange-400"
+                />
+                <div className="mt-3 flex justify-end gap-2">
+                    <SecondaryButton
+                        type="button"
+                        onClick={() => setIsEditing(false)}
+                    >
+                        キャンセル
+                    </SecondaryButton>
+                    <PrimaryButton
+                        disabled={editForm.processing}
+                        className="!bg-gradient-to-r !from-orange-400 !to-rose-500"
+                    >
+                        保存する
+                    </PrimaryButton>
+                </div>
+            </form>
+        );
+    }
+
+    return (
+        <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-100">
+            <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                    <StarRating rating={review.rating} size="sm" />
+                    <span className="text-xs text-gray-500">
+                        {review.user?.name ?? '匿名ユーザー'}
+                    </span>
+                </div>
+
+                {isOwnReview && (
+                    <div className="flex shrink-0 gap-3 text-xs">
+                        <button
+                            type="button"
+                            onClick={() => setIsEditing(true)}
+                            className="font-semibold text-gray-500 hover:text-orange-500"
+                        >
+                            編集
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleDelete}
+                            className="font-semibold text-gray-400 hover:text-red-500"
+                        >
+                            削除
+                        </button>
+                    </div>
+                )}
+            </div>
+            {review.comment && (
+                <p className="mt-2 text-sm text-gray-700">
+                    {review.comment}
+                </p>
+            )}
+        </div>
     );
 }

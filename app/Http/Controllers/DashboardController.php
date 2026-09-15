@@ -6,6 +6,10 @@ use App\Models\Booking;
 use App\Models\Review;
 use Inertia\Inertia;
 
+/**
+ * マイページ（一般ユーザー向けダッシュボード）を担当するController
+ * オーナー向けのダッシュボードは別クラス（Owner/OwnerDashboardController）になっている
+ */
 class DashboardController extends Controller
 {
     /**
@@ -33,11 +37,20 @@ class DashboardController extends Controller
             ->limit(3)
             ->get();
 
+        // お気に入り登録したサロンを新しい順に3件だけ取得する
+        $favoriteSalons = auth()->user()
+            ->favoriteSalons()
+            ->latest('favorites.created_at')
+            ->limit(3)
+            ->get();
+
         return Inertia::render('Dashboard', [
-            'recentBookings' => $recentBookings,
-            'recentReviews'  => $recentReviews,
+            'recentBookings'  => $recentBookings,
+            'recentReviews'   => $recentReviews,
+            'favoriteSalons'  => $favoriteSalons,
             // 予約履歴ページ側で「全件見る」リンクを出すかどうかの判定に使う
-            'bookingCount'   => Booking::where('user_id', $userId)->count(),
+            'bookingCount'    => Booking::where('user_id', $userId)->count(),
+            'favoriteCount'   => auth()->user()->favorites()->count(),
         ]);
     }
 }

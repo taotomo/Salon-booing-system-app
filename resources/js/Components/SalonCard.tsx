@@ -1,3 +1,4 @@
+import FavoriteButton from '@/Components/FavoriteButton';
 import StarRating from '@/Components/StarRating';
 import { Salon } from '@/types';
 import { GENRE_LABEL } from '@/utils/genre';
@@ -9,7 +10,15 @@ import { Link } from '@inertiajs/react';
  * 楽天ビューティー・ホットペッパービューティーの一覧カードを意識し、
  * 「画像 → 店名 → 評価 → 住所 → アピール文 → 代表メニュー → 最安メニュー」の順で情報を見せる
  */
-export default function SalonCard({ salon }: { salon: Salon }) {
+export default function SalonCard({
+    salon,
+    isFavorited = false,
+    isLoggedIn = false,
+}: {
+    salon: Salon;
+    isFavorited?: boolean;
+    isLoggedIn?: boolean;
+}) {
     const { average, count } = summarizeReviews(salon.reviews);
 
     // メニューの中から最安値を探す（一覧では「¥◯◯〜」の形式で見せたいため）
@@ -36,6 +45,13 @@ export default function SalonCard({ salon }: { salon: Salon }) {
                 )}
                 <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm">
                     {GENRE_LABEL[salon.genre]}
+                </span>
+                <span className="absolute right-3 top-3">
+                    <FavoriteButton
+                        salonId={salon.id}
+                        isFavorited={isFavorited}
+                        isLoggedIn={isLoggedIn}
+                    />
                 </span>
             </div>
 

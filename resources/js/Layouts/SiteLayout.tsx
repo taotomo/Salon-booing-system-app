@@ -1,6 +1,10 @@
 import Dropdown from '@/Components/Dropdown';
 import { User } from '@/types';
+// Link = Inertia独自の<a>タグ。普通の<a href>と違い、ページ全体を再読み込みせずに
+// 中身だけをサーバーから取得して差し替える（SPAのような速い画面遷移になる）
 import { Link } from '@inertiajs/react';
+// PropsWithChildren = 「childrenというpropsを持つ」ことを表すReact/TypeScript標準のユーティリティ型
+// <SiteLayout>ここに書いた中身</SiteLayout> の「ここに書いた中身」がchildrenとして渡ってくる
 import { PropsWithChildren } from 'react';
 
 /**
@@ -39,12 +43,20 @@ export default function SiteLayout({
                             サロンを探す
                         </Link>
                         {user && (
-                            <Link
-                                href={route('bookings.index')}
-                                className="transition hover:text-orange-500"
-                            >
-                                予約履歴
-                            </Link>
+                            <>
+                                <Link
+                                    href={route('bookings.index')}
+                                    className="transition hover:text-orange-500"
+                                >
+                                    予約履歴
+                                </Link>
+                                <Link
+                                    href={route('favorites.index')}
+                                    className="transition hover:text-orange-500"
+                                >
+                                    お気に入り
+                                </Link>
+                            </>
                         )}
                     </nav>
 
@@ -74,6 +86,9 @@ export default function SiteLayout({
                                     <Dropdown.Link href={route('bookings.index')}>
                                         予約履歴
                                     </Dropdown.Link>
+                                    <Dropdown.Link href={route('favorites.index')}>
+                                        お気に入り
+                                    </Dropdown.Link>
                                     <Dropdown.Link href={route('dashboard')}>
                                         マイページ
                                     </Dropdown.Link>
@@ -84,6 +99,11 @@ export default function SiteLayout({
                                             管理者ダッシュボード
                                         </Dropdown.Link>
                                     )}
+                                    <Dropdown.Link
+                                        href={route('owner.salons.create')}
+                                    >
+                                        サロンを登録する
+                                    </Dropdown.Link>
                                     <Dropdown.Link href={route('profile.edit')}>
                                         プロフィール設定
                                     </Dropdown.Link>

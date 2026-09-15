@@ -1,7 +1,13 @@
 <?php
 
+// このファイルは「URL（ブラウザに入力するアドレス）」と「それを処理するControllerのメソッド」を
+// 1行ずつ対応付ける設定ファイル（Laravelの機能：ルーティング）
+// 例）Route::get('/salons', [SalonController::class, 'index']) は
+//     「GET /salons にアクセスされたら SalonController の index() メソッドを呼ぶ」という意味
+// name('salons.index') で付けた名前は、React側で route('salons.index') のように使ってURLを組み立てられる（Ziggyというライブラリの機能）
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\Owner\OwnerBookingController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\Owner\OwnerSalonController;
@@ -83,10 +89,24 @@ Route::middleware('auth')->group(function () {
 
     /*
     | レビュー関連
-    | POST /reviews → レビューを保存
+    | POST   /reviews          → レビューを保存
+    | PUT    /reviews/{review} → レビューを編集
+    | DELETE /reviews/{review} → レビューを削除
     | （レビューの入力フォームはサロン詳細ページに埋め込む）
     */
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    /*
+    | お気に入り関連
+    | GET    /favorites          → お気に入り一覧ページ
+    | POST   /favorites          → お気に入りに追加
+    | DELETE /favorites/{salon}  → お気に入りから削除
+    */
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites', [FavoriteController::class, 'store'])->name('favorites.store');
+    Route::delete('/favorites/{salon}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
 
     /*
     |----------------------------------------------------------------------
@@ -99,6 +119,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('owner')->name('owner.')->group(function () {
         Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');
 
+        Route::get('/salons/create', [OwnerSalonController::class, 'create'])->name('salons.create');
+        Route::post('/salons', [OwnerSalonController::class, 'store'])->name('salons.store');
         Route::get('/salons/{salon}/edit', [OwnerSalonController::class, 'edit'])->name('salons.edit');
         Route::put('/salons/{salon}', [OwnerSalonController::class, 'update'])->name('salons.update');
 

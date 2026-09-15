@@ -5,6 +5,14 @@ namespace App\Http\Middleware;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
+/**
+ * Inertia（LaravelとReactを繋ぐライブラリ）用のミドルウェア
+ *
+ * ミドルウェア = 全てのリクエストの前後に共通処理を差し込む仕組み（Laravelの機能）
+ * このクラスは「全ページ共通でReact側に渡したいデータ」をshare()にまとめておく役割を持つ。
+ * ここに書いたデータは、どのInertia::render(...)を呼んでも自動的にpropsとして
+ * Reactコンポーネントに渡される（例：auth.userでログイン中のユーザー情報を毎回渡している）
+ */
 class HandleInertiaRequests extends Middleware
 {
     /**
